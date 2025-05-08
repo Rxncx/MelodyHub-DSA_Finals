@@ -1,3 +1,7 @@
+#rance to man
+#example songs
+
+
 songs = []
 
 while True:
