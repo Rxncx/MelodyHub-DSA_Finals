@@ -1,5 +1,3 @@
-#MELODYHUB CODE
-
 #example music
 #TITLE --- ARTIST --- GENRE --- MOOD
 #Happy --- Pharrell Williams --- Pop --- happy
@@ -18,114 +16,168 @@
 #Espresso --- Sabrina Carpenter --- Funk ---chill
 #Golden Hour --- JVKE --- Pop --- chill
 
+# MelodyHub: A simple terminal-based music inventory and playlist generator.
+
+# List that stores all the added music
 music_list = []
 
-valid_genres = [
+# Valid options for genre and mood, used for validation
+VALID_GENRES = [
     "Pop", "Rock", "Rap", "Metal", "R&B", "Funk", "Jazz",
     "Blues", "Country", "Classical", "Reggae", "EDM", "Disco"
 ]
-valid_moods = ["happy", "sad", "focused", "party", "chill"]
+VALID_MOODS = ["happy", "sad", "focused", "party", "chill"]
 
-def display_music(index, music):
-    print(f"{index}. {music['title']} by {music['artist']} - Genre: {music['genre']}, Mood: {music['mood']}")
+def display_music(i, music):
+    """Display a formatted line of music information."""
+    print(f"{i}. {music['title']} by {music['artist']} - Genre: {music['genre']}, Mood: {music['mood']}")
 
-print("\nWelcome to MelodyHub!")
-
-while True:
+def display_menu():
+    """
+    Show the main menu options to the user.
+    This runs every time the user completes an action and returns to the main menu.
+    """
     print("\n[1] Add Music")
     print("[2] View Stored Music")
     print("[3] Generate Playlist")
     print("[4] Remove Music")
     print("[5] Exit")
 
-    choice = input("Choose an option (1-5): ")
+def add_music():
+    """
+    Allow the user to add a music entry.
+    The function asks for title, artist, genre, and mood.
+    It validates genre and mood before adding the entry to the music list.
+    """
+    # Prompting user for music details
+    print("\n--- Add Music ---")
+    title = input("Enter music title: ")
+    artist = input("Enter artist name: ")
 
-    if choice == "1":
-        print("\n--- Add Music ---")
-        title = input("Enter music title: ")
-        artist = input("Enter artist name: ")
-
-        print("-Choose genre (Pop, Rock, Rap, Metal, R&B, Funk, Jazz, Blues, Country, Classical, Reggae, EDM, Disco)")
-        while True:
-            genre = input("Enter genre: ").title()
-            if genre in valid_genres:
-                break
-            else:
-                print("Invalid genre. Please choose from the list.")
-
-        while True:
-            mood = input("Enter mood tag (happy, sad, focused, party, chill): ").lower()
-            if mood in valid_moods:
-                break
-            else:
-                print("Invalid mood. Please enter a valid mood.")
-
-        music = {
-            "title": title,
-            "artist": artist,
-            "genre": genre,
-            "mood": mood
-        }
-        music_list.append(music)
-        print("\nMusic added successfully!")
-
-    elif choice == "2":
-        print("\n--- Stored Music ---")
-        if music_list:
-            sorted_music_list = sorted(music_list, key=lambda x: x['title'].lower())
-            for i, music in enumerate(sorted_music_list, 1):
-                display_music(i, music)
+    # Validating genre
+    print("-Choose genre (Pop, Rock, Rap, Metal, R&B, Funk, Jazz, Blues, Country, Classical, Reggae, EDM, Disco)")
+    while True:
+        genre_input = input("Enter genre: ").strip()
+        if genre_input.lower() in [g.lower() for g in VALID_GENRES]: # checking if genre is valid and converting to lowercase for comparison.
+            genre = next(g for g in VALID_GENRES if g.lower() == genre_input.lower()) # use correct casing from VALID_GENRES
+            break # if genre is valid, break the loop.
         else:
-            print("No music stored yet.")
+            print("Invalid genre. Please choose from the list.") # notifying the user that genre is invalid.
 
-    elif choice == "3":
-        print("\n--- Generate Playlist ---")
-        if not music_list:
-            print("No music stored in inventory.")
-            continue
-
-        print("Select mood:")
-        print("[1] Happy")
-        print("[2] Sad")
-        print("[3] Focused")
-        print("[4] Party")
-        print("[5] Chill")
-
-        mood_choice = input("Choose a mood (1-5): ")
-        mood_map = {"1": "happy", "2": "sad", "3": "focused", "4": "party", "5": "chill"}
-
-        selected_mood = mood_map.get(mood_choice)
-        if selected_mood:
-            playlist = [s for s in music_list if s["mood"] == selected_mood]
-            if playlist:
-                print(f"\n--- {selected_mood.capitalize()} Playlist ---")
-                for i, music in enumerate(playlist, 1):
-                    print(f"{i}. {music['title']} by {music['artist']} - Genre: {music['genre']}")
-            else:
-                print(f"\nNo music found with mood: {selected_mood}")
+    # Validating mood
+    while True:
+        mood_input = input("Enter mood tag (happy, sad, focused, party, chill): ").strip()
+        if mood_input.lower() in [m.lower() for m in VALID_MOODS]: # checking if mood is valid and converting to lowercase for comparison.
+            mood = next(m for m in VALID_MOODS if m.lower() == mood_input.lower()) # use correct casing from VALID_MOODS
+            break # if mood is valid, break the loop.
         else:
-            print("Invalid mood selection.")
+            print("Invalid mood. Please enter a valid mood.") # notifying the user that mood is invalid.
 
-    elif choice == "4":
-        print("\n--- Remove Music ---")
-        if music_list:
-            for i, music in enumerate(music_list, 1):
-                print(f"{i}. {music['title']} by {music['artist']}")
-            try:
-                music_to_remove = int(input("Enter the number of the music to remove: "))
-                if 1 <= music_to_remove <= len(music_list):
-                    removed = music_list.pop(music_to_remove - 1)
-                    print(f"\nRemoved '{removed['title']}' by {removed['artist']}.")
-                else:
-                    print("Invalid number.")
-            except ValueError:
-                print("\nPlease enter a valid number.")
-        else:
-            print("No music available to remove.")
+    # Add the validated music entry to the list
+    music = {
+        "title": title,
+        "artist": artist,
+        "genre": genre,
+        "mood": mood
+    }
+    music_list.append(music)
+    print("\nMusic added successfully!") # notifying the user that music has been added.
 
-    elif choice == "5":
-        print("\nThank you for using MelodyHub! Keep the vibes going!\n")
-        break
-
+def view_stored_music():
+    """
+    Show all the stored music in alphabetical order by title.
+    If the list is empty, notify the user.
+    """
+    print("\n--- Stored Music ---")
+    if music_list:
+        # Sort alphabetically by title (case-insensitive)
+        sorted_music = sorted(music_list, key=lambda x: x['title'].lower())
+        for i, music in enumerate(sorted_music, 1):
+            display_music(i, music)
     else:
-        print("\nInvalid option. Please select 1-5.")
+        print("No music stored yet.") # notifying the user that no music is stored yet.
+
+def generate_playlist():
+    """
+    Generate and display a playlist based on the user's mood selection.
+    Shows matching songs if available. If not, displays appropriate messages.
+    """
+    print("\n--- Generate Playlist ---")
+    if not music_list: # checking if music list is empty.
+        print("No music stored in inventory.") #notifying the user that no music is stored yet.
+        return # if music list is empty, return to the main menu of generate playlist.
+
+    # Ask user to select a mood
+    print("Select mood:")
+    print("[1] Happy")
+    print("[2] Sad")
+    print("[3] Focused")
+    print("[4] Party")
+    print("[5] Chill")
+
+    mood_map = {"1": "happy", "2": "sad", "3": "focused", "4": "party", "5": "chill"}
+    mood_choice = input("Choose a mood (1-5): ") # prompting the user to choose a mood.
+    selected_mood = mood_map.get(mood_choice) # mapping the mood choice to the corresponding mood.
+
+    if selected_mood:
+        # Filter songs that match the selected mood and sort alphabetically by title
+        playlist = sorted(
+            [m for m in music_list if m['mood'] == selected_mood],
+            key=lambda x: x['title'].lower()
+        )
+        if playlist:
+            print(f"\n--- {selected_mood.capitalize()} Playlist ---")
+            for i, music in enumerate(playlist, 1): # enumerating the playlist.
+                print(f"{i}. {music['title']} by {music['artist']} - Genre: {music['genre']}")
+        else:
+            print(f"\nNo music found with mood: {selected_mood}") # notifying the user that no music is found with the selected mood.
+    else:
+        print("\nInvalid mood selection.") # notifying the user that mood selection is invalid.
+
+def remove_music():
+    """
+    Display all stored music and let the user remove one by number.
+    Handles invalid numbers and empty list situations.
+    """
+    print("\n--- Remove Music ---")
+    if music_list:
+        for i, music in enumerate(music_list, 1): # enumerating the music list.
+            print(f"{i}. {music['title']} by {music['artist']}") # displaying the music list.
+        try:
+            music_to_remove = int(input("Enter the number of the music to remove: ")) # prompting the user to enter the number of the music to remove.
+            if 1 <= music_to_remove <= len(music_list): # checking if the entered number is valid.
+                removed = music_list.pop(music_to_remove - 1) # removing the music from the list.
+                print(f"\nRemoved '{removed['title']}' by {removed['artist']}.") # notifying the user that music has been removed.
+            else:
+                print("\nInvalid number.") # notifying the user that the entered number is invalid.
+        except ValueError:
+            print("\nPlease enter a valid number.") # notifying the user that the entered value is not a number.
+    else:
+        print("No music available to remove.") # if music list is empty, notifying the user that no music is available to remove.
+
+def main():
+    """
+    The main loop of the program.
+    Keeps running until the user chooses to exit (option 5).
+    Handles routing to all features based on the user's input.
+    """
+    print("\nWelcome to MelodyHub!")
+    while True:
+        display_menu()
+        choice = input("Choose an option (1-5): ") # prompting the user to choose an option.
+
+        if choice == "1":
+            add_music()
+        elif choice == "2":
+            view_stored_music()
+        elif choice == "3":
+            generate_playlist()
+        elif choice == "4":
+            remove_music()
+        elif choice == "5":
+            print("\nThank you for using MelodyHub! Keep the vibes going!\n") # notifying the user that they are exiting the program.
+            break
+        else:
+            print("Invalid option. Please select 1-5.") # notifying the user that the entered option is invalid.
+
+main()
